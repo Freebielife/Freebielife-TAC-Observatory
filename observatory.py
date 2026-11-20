@@ -13,7 +13,11 @@ ROLES = {"dedust_vault":"DeDust Vault","stonfi_router_v2":"STON.fi Router V2",
          "stonfi_pool_v2":"STON.fi Pool V2","stonfi_pool_v1":"STON.fi Pool V1"}
 RECOVERABLE = (OSError, ValueError, KeyError, RuntimeError)
 
-KNOWN_SERVICES = {}
+# Address labels observed in user-provided gram.org screenshots on 2026-11-20.
+# External attribution, not cryptographic proof of custodial ownership.
+KNOWN_SERVICES = {'0:9ee8e6653451d75816a2e55dc2cd8b1d3baf32651d8631d31858ee8d275c188b': 'Bitget', '0:9650baefe1a7d54893516da54ee8b709a118ac76715aba39c1429b4a497047d1': 'Wallet in Telegram', '0:3b865f3176d329c18280bb36477a2ece4a726955ace73bb27014b5588d8e00b7': 'KuCoin', '0:f938abb44deb73fa56a39b895796017d5b350f9ea9d5db7d52643296dd660edb': 'Bybit', '0:7f8498bf9a0f00c72a44e9ddf17ccea359b45bdd1febd42a5549d309c96696cc': 'TAC Project Multisig', '0:f2a2e706bf1295fa6388e30a99c431ce294aef002727946d013a85dfc1554317': 'KuCoin', '0:c8b0596f090b2415fe55ef2e0785f1c576992bfde436aeac75efcec3ab1f0fac': 'Kraken'}
+KNOWN_SERVICE_SOURCES = {'0:9ee8e6653451d75816a2e55dc2cd8b1d3baf32651d8631d31858ee8d275c188b': 'https://gram.org/address/UQCe6OZlNFHXWBai5V3CzYsdO68yZR2GMdMYWO6NJ1wYi5PA', '0:9650baefe1a7d54893516da54ee8b709a118ac76715aba39c1429b4a497047d1': 'https://gram.org/address/UQCWULrv4afVSJNRbaVO6LcJoRisdnFaujnBQptKSXBH0TMO', '0:3b865f3176d329c18280bb36477a2ece4a726955ace73bb27014b5588d8e00b7': 'https://gram.org/address/UQA7hl8xdtMpwYKAuzZHei7OSnJpVaznO7JwFLVYjY4At45g', '0:f938abb44deb73fa56a39b895796017d5b350f9ea9d5db7d52643296dd660edb': 'https://gram.org/address/UQD5OKu0Tetz-lajm4lXlgF9WzUPnqnV231SZDKW3WYO2-1d', '0:7f8498bf9a0f00c72a44e9ddf17ccea359b45bdd1febd42a5549d309c96696cc': 'https://gram.org/address/UQB_hJi_mg8AxypE6d3xfM6jWbRb3R_r1CpVSdMJyWaWzCP6', '0:f2a2e706bf1295fa6388e30a99c431ce294aef002727946d013a85dfc1554317': 'https://gram.org/address/UQDyoucGvxKV-mOI4wqZxDHOKUrvACcnlG0BOoXfwVVDF8MU', '0:c8b0596f090b2415fe55ef2e0785f1c576992bfde436aeac75efcec3ab1f0fac': 'https://gram.org/address/UQDIsFlvCQskFf5V7y4HhfHFdpkr_eQ2rqx1787Dqx8PrG9-'}
+SERVICE_LABEL_CHECKED_AT = 1795202469
 def role(wallet, account, registry=None):
     if wallet in KNOWN_SERVICES:
         return KNOWN_SERVICES[wallet]
@@ -109,7 +113,8 @@ def identity(snapshot, now, budget=32, pace=1.05):
     for w in visible:
         records.setdefault(w, {})
         if w in KNOWN_SERVICES:
-            records[w]["role"] = KNOWN_SERVICES[w]
+            records[w].update(role=KNOWN_SERVICES[w], roleSource=KNOWN_SERVICE_SOURCES[w],
+                              roleChecked=SERVICE_LABEL_CHECKED_AT)
     queue = sorted(visible, key=lambda w: (w not in top, records[w].get("checked", 0)))
     checks = 0
     for wallet in queue:
