@@ -16,7 +16,15 @@ KNOWN_SERVICES = {}
 def role(wallet, account):
     if wallet in KNOWN_SERVICES:
         return KNOWN_SERVICES[wallet]
-    return next((ROLES[i] for i in account.get("interfaces", []) if i in ROLES), None)
+    # The network's recognized interfaces are evidence, a large token balance is not.
+    known = next((ROLES[i] for i in account.get("interfaces", []) if i in ROLES), None)
+    if known:
+        return known
+    # Keep ordinary wallet contracts distinct from non-wallet smart contracts;
+    # do not claim that an unknown contract belongs to any named service.
+    if account.get("status") == "active" and account.get("is_wallet") is False:
+        return "unclassified_contract"
+    return None
 def hash_hex(value):
     result = base64.b64decode(value, validate=True)
     if len(result) != 32:
