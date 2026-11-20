@@ -40,7 +40,7 @@ jobs:
       - name: Follow repository rename automatically
         run: python3 scripts/sync_repository.py
       - name: Refresh verifiable TAC on-chain data
-        run: python3 scripts/refresh_tac.py
+        run: python3 -m scripts.refresh_tac
       - name: Build verified single-file page
         run: |
           python3 build.py
