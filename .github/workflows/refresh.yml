@@ -1,0 +1,55 @@
+name: Refresh TAC Observatory
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/refresh.yml'
+      - 'scripts/refresh_tac.py'
+      - 'scripts/sync_repository.py'
+      - 'project.json'
+      - 'web/**'
+      - 'assets.py'
+      - 'trades.py'
+      - 'pools.py'
+permissions:
+  contents: write
+concurrency:
+  group: tac-main-snapshot
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate token and site sources
+        run: |
+          test -f assets.py
+          test -f data/snapshot.json
+          node --check web/app.js
+          node --test tests/*.test.cjs
+      - name: Follow repository rename automatically
+        run: python3 scripts/sync_repository.py
+      - name: Refresh verifiable TAC on-chain data
+        run: python3 scripts/refresh_tac.py
+      - name: Build verified single-file page
+        run: |
+          python3 build.py
+          python3 verify.py
+      - name: Safely publish snapshot and repo URL changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- project.json web/snapshot-loader.js
+          if ! git diff --cached --quiet; then git commit -m 'Sync TAC repository snapshot URLs'; fi
+          python3 scripts/publish_snapshot.py
+          git push origin HEAD:main
