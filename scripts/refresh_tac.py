@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 
 import assets
+import service_registry
 import pools
 import trades
 import observatory
@@ -63,6 +64,12 @@ def refresh() -> bool:
             print(key, "UNAVAILABLE:", type(error).__name__, str(error)[:200], flush=True)
 
     stage("holders", lambda _: {**assets.holders(), "asOf": now})
+    if service_registry.update(snapshot, now, observatory.KNOWN_SERVICES):
+        errors.add("serviceRegistry")
+    else:
+        errors.discard("serviceRegistry")
+    snapshot["errors"] = sorted(errors)
+    save(snapshot)
     stage("trades", lambda old: trades.collect(old, now - 366 * 86400, now, max_pages=45))
     # Verify accepted burn notifications on the TAC master, never sender requests alone.
     # First scan covers seven days; subsequent scans overlap the last hour for reindexing.

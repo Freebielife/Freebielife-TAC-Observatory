@@ -14,6 +14,10 @@ on:
       - 'assets.py'
       - 'trades.py'
       - 'pools.py'
+      - 'observatory.py'
+      - 'service_registry.py'
+      - 'common-services.json'
+      - 'tests/test_service_registry.py'
 permissions:
   contents: write
 concurrency:
@@ -33,6 +37,7 @@ jobs:
           python-version: '3.12'
       - name: Validate token and site sources
         run: |
+          python3 -m unittest discover -s tests -p "test_*.py"
           test -f assets.py
           test -f data/snapshot.json
           node --check web/app.js
