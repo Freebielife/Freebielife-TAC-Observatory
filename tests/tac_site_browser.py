@@ -30,9 +30,10 @@ def main():
                           ".resourceList a[href='https://t.me/TACbuild'] .brandTile",
                           "#pools .knownPools .poolCard .dexMarks .brandTile",
                           "#pools .knownPools .poolCard h3 .brandTile",
-                          "#links a[href='https://tac.build/'] .brandTile",
-                          "#links a[href='https://staking.tac.build/'] .brandTile"):
+                          "#links a[href='https://tac.build/'] .brand-project",
+                          "#links a[href='https://staking.tac.build/'] .brand-project"):
                 assert page.locator(query).count() >= 1, (width, query)
+            assert "image/webp" in page.locator("#links a[href='https://tac.build/'] .brand-project").evaluate("el => getComputedStyle(el).backgroundImage")
             assert page.locator("a[href='" + STAKING + "']").count() == 2
             assert "GeckoTerminal ·" not in page.locator("#pools").inner_text()
             assert "Проверено по GeckoTerminal" not in page.locator("#pools").inner_text()
