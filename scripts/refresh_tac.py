@@ -82,7 +82,7 @@ def refresh() -> bool:
     # Publishing an empty, valid section is distinct from a failed badge source.
     stage("badges", lambda old: {**badges.refresh(old, now), "asOf": now}, interval=6 * 3600)
     # Four-digit DNS ownership is independently verified, not inferred from wallet labels.
-    stage("domains", lambda old: domains.enrich(snapshot, now), interval=6 * 3600)
+    stage("domains", lambda old: domains.enrich(snapshot, now), interval=1800)
     if updated_any:
         snapshot["updated"] = int(time.time())
     snapshot["errors"] = sorted(errors)
