@@ -1,12 +1,31 @@
-# TAC Observatory pilot
+# Источники и полнота TAC Observatory
 
-Independent informational site, not an official TAC product.
-Jetton master: EQBE_gBrU3mPI9hHjlJoR_kYyrhQgyCFD6EUWfa42W8T7EBP
-Raw account: 0:44fe006b53798f23d8478e526847f918cab8508320850fa11459f6b8d96f13ec
-TAC master and 18 decimals: https://github.com/TacBuild/tokenlist/blob/main/src/tokens/tac.json
-Primary TAC/TON pool STON.fi V2: EQCg4hnMxXk6TemtkO9jUEmbAdxj7W5vY7OVmo41h3rvZEUI
-Pool source: https://www.geckoterminal.com/ton/pools/EQCg4hnMxXk6TemtkO9jUEmbAdxj7W5vY7OVmo41h3rvZEUI
-Larger TAC/USDT pool is outside current TON-only trade collector.
-No TAC staking or special badge contracts have been verified for this build.
-Logo source: user provided metadata
-Future snapshot URL targets Freebielife/TAC-Observatory, pending creation.
+## Токен
+
+- Мастер-контракт TAC: `EQBE_gBrU3mPI9hHjlJoR_kYyrhQgyCFD6EUWfa42W8T7EBP`.
+- Эквивалентный raw-адрес: `0:44fe006b53798f23d8478e526847f918cab8508320850fa11459f6b8d96f13ec`.
+- Разрядность jetton: **18**, подтверждена списком токенов TAC Build: https://github.com/TacBuild/tokenlist/blob/main/src/tokens/tac.json .
+- Логотип: изображение из метаданных, предоставленное владельцем сайта; во время первой сборки преобразовано в локальный WebP и встроено в HTML.
+- Официальные внешние ссылки указаны в `project.json`.
+
+## Торговые данные
+
+- Прямой наблюдаемый пул STON.fi V2 TAC/TON: `EQCg4hnMxXk6TemtkO9jUEmbAdxj7W5vY7OVmo41h3rvZEUI`.
+- Аналитика пула: https://www.geckoterminal.com/ton/pools/EQCg4hnMxXk6TemtkO9jUEmbAdxj7W5vY7OVmo41h3rvZEUI .
+- Покупки/продажи собираются из подтверждённых событий выбранного пула через TonAPI.
+- Данные о держателях TAC собираются из списка jetton holders TonAPI; рейтинг использует до 100 крупнейших адресов.
+- Данные TON/USD используются из CoinGecko с контролем формата.
+- Пулы для отображения обнаруживаются по GeckoTerminal.
+- **TAC/USD₮ и другие пары не участвуют в расчёте отдельных покупок/продаж и графика.** Капитализация носит оценочный характер.
+
+## Достоверность и ограничения
+
+При первом установочном запуске получены 100 крупнейших кошельков и 894 сделки. Это исторический стартовый снимок, а не неизменное текущее значение. Текущие числа см. в `data/snapshot.json`.
+
+История сделок первоначально ограничена семидневным периодом. Следующие обновления пополняют историю; **30-дневные рейтинги не являются полными, пока не накоплена достаточная история**.
+
+Не реализована полная индексация сжиганий, специальных NFT-меток, доменов и сервисных кошельков. Отсутствующие разделы помечаются как неполные в `snapshot.errors`. Это не свидетельствует об отсутствии соответствующих операций в TON.
+
+Автоматическое обновление: `.github/workflows/refresh.yml` с расписанием каждые 10 минут (GitHub может задерживать запуски). Страница загружает снимки из **текущего репозитория**, указанного в `project.json`.
+
+Это независимый информационный обозреватель, не официальный продукт TAC.
