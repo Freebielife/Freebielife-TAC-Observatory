@@ -7,6 +7,7 @@ on:
       - 'assets/icon-pack/**'
       - 'project.json'
       - 'observatory.py'
+      - 'trade_history.py'
       - 'scripts/**'
       - 'tests/tac_site_browser.py'
       - '.github/workflows/tac-visual-qa.yml'
