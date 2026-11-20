@@ -22,6 +22,10 @@ def main():
             page.goto((ROOT / "index.html").as_uri())
             page.wait_for_selector("#market #plot svg", timeout=15000)
             assert not faults, faults
+            # Missing burn indexing must not imply that no verified market
+            # snapshot exists; the notice can still honestly say "partial".
+            assert "Нет полного снимка данных" not in page.locator("#syncDetail").inner_text()
+            assert "Complete snapshot unavailable" not in page.locator("#syncDetail").inner_text()
             assert set(page.evaluate("Object.keys(window.OBSERVATORY_BRAND_ATLAS?.positions || {})")) >= EXPECTED
             assert not (set(page.evaluate("Object.keys(window.OBSERVATORY_BRAND_ATLAS?.positions || {})")) & FORBIDDEN)
             for query in (".heroChain [data-brand=ton] .brandTile",
