@@ -36,7 +36,7 @@ def four_digits(wallet):
     return sorted(result)
 
 
-def check_queue(addresses, visible, checked, now, *, checked_at="digitsAt", limit=45):
+def check_queue(addresses, visible, checked, now, *, checked_at="digitsAt", limit=15):
     """Refresh visible identities hourly while reserving every third slot for history."""
     priority, history = [], []
     for wallet in addresses:
@@ -63,8 +63,9 @@ def enrich(snapshot, now):
     holders = [r["wallet"] for r in snapshot.get("holders", {}).get("holders", [])]
     trades = [r["wallet"] for r in snapshot.get("trades", {}).get("rows", [])]
     burns = [r["wallet"] for r in snapshot.get("burns", {}).get("rows", [])]
-    addresses = list(dict.fromkeys(holders + trades[:50] + burns + trades))
-    visible = set(holders + trades[:50] + burns[:50])
+    zero_burns = [r["wallet"] for r in snapshot.get("zeroBurns", {}).get("rows", [])]
+    addresses = list(dict.fromkeys(burns + zero_burns + trades[:50] + holders + trades))
+    visible = set(holders + trades[:50] + burns[:50] + zero_burns[:50])
     wanted = set(addresses)
     checked = {w:dict(r) for w,r in previous.get("byWallet", {}).items() if w in wanted}
     for wallet in addresses:
@@ -81,4 +82,7 @@ def enrich(snapshot, now):
         time.sleep(1)
     for record in checked.values():
         if now - record.get("digitsAt",0) > 2*86400: record["digits"] = []
-    return {"byWallet":checked, "asOf":now}
+    completed = sum(1 for record in checked.values() if record.get("digitsAt", 0) > 0)
+    print(f"Domain ownership coverage: {completed}/{len(checked)} wallets checked; "
+          f"{sum(bool(record.get('digits')) for record in checked.values())} wallets with numeric domains", flush=True)
+    return {"byWallet":checked, "asOf":now, "coverage": {"checked": completed, "total": len(checked)}}
