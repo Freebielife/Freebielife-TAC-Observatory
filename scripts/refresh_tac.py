@@ -64,16 +64,25 @@ def refresh() -> bool:
 
     stage("holders", lambda _: {**assets.holders(), "asOf": now})
     stage("trades", lambda old: trades.collect(old, now - 366 * 86400, now, max_pages=45))
+    # Verify accepted burn notifications on the TAC master, never sender requests alone.
+    # First scan covers seven days; subsequent scans overlap the last hour for reindexing.
+    def collect_burns(old):
+        since = max(1, int(old.get("asOf", now - 7 * 86400)) - 3600)
+        rows, covered_since = assets.burns(old.get("rows", []), since)
+        return {"asOf": now, "since": min(int(old.get("since", covered_since)), covered_since), "rows": rows}
+    stage("burns", collect_burns, interval=1800)
+    # Zero-address transfers are a distinct verified mechanism, queried less often.
+    stage("zeroBurns", lambda old: observatory.zero_burns(old, now), interval=6 * 3600)
     stage("rates", lambda _: {"asOf": now, "rows": trades.rates()}, interval=6 * 3600)
     stage("pools", lambda _: pools.collect(now), interval=24 * 3600)
     # Gradually verify account types; 18 per run avoids exhausting free API quota.
     # Unchecked owners stay unidentified and are never classified from balances.
-    stage("identity", lambda _: observatory.identity(snapshot, now, budget=18, pace=0.2))
+    stage("identity", lambda _: observatory.identity(snapshot, now, budget=4, pace=1.05), interval=3600)
     # Badge rules are intentionally empty for TAC until verified proofs are configured.
     # Publishing an empty, valid section is distinct from a failed badge source.
     stage("badges", lambda old: {**badges.refresh(old, now), "asOf": now}, interval=6 * 3600)
     # Four-digit DNS ownership is independently verified, not inferred from wallet labels.
-    stage("domains", lambda old: domains.enrich(snapshot, now), interval=3600)
+    stage("domains", lambda old: domains.enrich(snapshot, now), interval=6 * 3600)
     if updated_any:
         snapshot["updated"] = int(time.time())
     snapshot["errors"] = sorted(errors)
