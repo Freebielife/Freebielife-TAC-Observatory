@@ -1079,15 +1079,19 @@ $("clearBadgeFilters").onclick=()=>{
 window.addEventListener("resize",chart);render();
 function renderSyncStatus(){
  const ru=lang==='ru', now=Date.now()/1000;
- const times=['trades','burns','holders'].map(k=>snapshot[k]?.asOf||0);
- const asOf=Math.min(...times), minutes=Math.max(0,Math.floor((now-asOf)/60));
+ // Burns are optional until separately indexed. Do not make an otherwise
+ // verified TON trade/holder snapshot permanently look uninitialized.
+ const required=['trades','holders'];
+ const times=required.map(k=>snapshot[k]?.asOf).filter(n=>Number.isFinite(n)&&n>0);
+ const asOf=times.length?Math.min(...times):0, minutes=asOf?Math.max(0,Math.floor((now-asOf)/60)):0;
+ const missingSections=required.some(k=>!snapshot[k]?.asOf);
  let age=minutes<1?(ru?'только что':'just now'):minutes<60?(ru?`${minutes} мин. назад`:`${minutes} min ago`):(ru?`${Math.floor(minutes/60)} ч ${minutes%60} мин. назад`:`${Math.floor(minutes/60)}h ${minutes%60}m ago`);
  const fresh=asOf?(ru?'Данные обновлены '+age:'Data updated '+age):(ru?'Нет полного снимка данных':'Complete snapshot unavailable');
  const loading=syncState.phase==='loading', failed=syncState.phase==='error';
  $('syncStatus').textContent=loading?(ru?'Проверяем обновления…':'Checking for updates…'):failed?(ru?'Не удалось загрузить свежие данные':'Could not load fresh data'):fresh;
- const warning=!asOf || minutes>=150 || (snapshot.errors||[]).length>0;
+ const warning=!asOf || missingSections || minutes>=150 || (snapshot.errors||[]).length>0;
  $('syncStatus').className=failed||warning?'syncWarning':'';
- let detail=loading||failed?fresh:warning?(ru?'Часть данных устарела. Ожидаем новый снимок.':'Some data is old. Waiting for a new snapshot.'):(ru?'Автопроверка каждые 5 минут':'Checks every 5 minutes');
+ let detail=loading||failed?fresh:minutes>=150?(ru?'Данные обновляются с задержкой.':'Data refresh is delayed.'):(missingSections||(snapshot.errors||[]).length>0)?(ru?'Некоторые разделы пока не проиндексированы.':'Some sections have not been indexed yet.'):(ru?'Автопроверка каждые 5 минут':'Checks every 5 minutes');
  if(failed) detail+=' · '+(ru?'Показана сохранённая копия. Повторим проверку автоматически.':'Showing the saved copy. We will retry automatically.');
  if(syncState.checkedAt&&!loading&&!failed) detail+=' · '+(ru?'Проверено в ':'Checked at ')+new Date(syncState.checkedAt).toLocaleTimeString(lang,{hour:'2-digit',minute:'2-digit'});
  $('syncDetail').textContent=detail;
