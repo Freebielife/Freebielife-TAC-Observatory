@@ -14,6 +14,7 @@ from pathlib import Path
 import assets
 import pools
 import trades
+import observatory
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data/snapshot.json"
@@ -63,6 +64,9 @@ def refresh() -> bool:
     stage("trades", lambda old: trades.collect(old, now - 366 * 86400, now, max_pages=45))
     stage("rates", lambda _: {"asOf": now, "rows": trades.rates()}, interval=6 * 3600)
     stage("pools", lambda _: pools.collect(now), interval=24 * 3600)
+    # Gradually verify account types; 18 per run avoids exhausting free API quota.
+    # Unchecked owners stay unidentified and are never classified from balances.
+    stage("identity", lambda _: observatory.identity(snapshot, now, budget=18, pace=0.2))
     if updated_any:
         snapshot["updated"] = int(time.time())
     snapshot["errors"] = sorted(errors)
