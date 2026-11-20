@@ -1,9 +1,42 @@
-# TAC Token Observatory
+# TAC Observatory
 
-Generated from the reusable TON Observatory framework.
+Независимая экспериментальная обсерватория токена TAC в TON на основе визуального стандарта Ludoman. **Не является официальным сайтом TAC.**
 
-Run python3 collect.py; python3 build.py; python3 verify.py.
-Publish index.html in TON Sites only after independent on-chain verification.
-The initial snapshot is EMPTY: no market data is claimed.
-Only native TON swap pairs supported. Locks, staking and custom project NFT badges are configured through project.json and verified against TonAPI.
-Configure your GitHub workflow scheduler before launch.
+## Открыть и проверить
+
+- [Автономный сайт (index.html)](./index.html) — один HTML-файл для локального просмотра и будущей публикации в TON Sites.
+- [Снимок данных TON](./data/snapshot.json) — проверяемые исходные данные.
+- [Настройки токена и торговых пулов](./project.json).
+- [Источники и ограничения](./TAC_SOURCE_AUDIT.md).
+- [GitHub Actions](./../../actions) — автоматические обновления и журналы запусков.
+
+## Работа
+
+- Токен: **TAC Token (TAC)**, jetton master `EQBE_gBrU3mPI9hHjlJoR_kYyrhQgyCFD6EUWfa42W8T7EBP`, точность **18**.
+- Основная наблюдаемая пара: **TAC/TON** на STON.fi V2. Данные других пар, включая TAC/USD₮, в рейтингах сделок не учитываются.
+- Общий стиль: мобильный и настольный интерфейс RU/EN, торговые операции, графики, рейтинги обычных кошельков и сервисов, проверяемые метки, торговые пулы, ссылки.
+- Логотип TAC встроен в HTML. Нет удалённой загрузки графических материалов.
+- **Автообновление:** `.github/workflows/refresh.yml`, расписание GitHub Actions каждые 10 минут. Реальный запуск зависит от очереди и ограничений GitHub. Обновляющий скрипт сохраняет подтверждённые разделы по очереди, не стирая последний успешный снимок при сбое источника.
+- Отсутствующие данные по сжиганиям, дополнительным NFT, доменным меткам и сервисным ролям помечены как неполные. Не следует интерпретировать их отсутствие как нулевые значения.
+- График капитализации — оценка по отслеживаемой паре TAC/TON, не глобальная рыночная капитализация TAC.
+
+## Проверка и сборка
+
+```bash
+node --check web/app.js
+node --test tests/*.test.cjs
+python3 build.py
+python3 verify.py
+```
+
+Для обновления из внешних API:
+
+```bash
+python3 -m scripts.refresh_tac
+python3 build.py
+python3 verify.py
+```
+
+После переименования GitHub-репозитория `scripts/sync_repository.py` сверяет `GITHUB_REPOSITORY` с настройками и обновляет ссылки на снимок при следующем запуске GitHub Actions. Адрес опубликованного TON Site нужно обновлять отдельно при необходимости.
+
+**TON Site через Resistance Tools пока не опубликован.** Репозиторий содержит автономный HTML, который можно публиковать после окончательной проверки.
