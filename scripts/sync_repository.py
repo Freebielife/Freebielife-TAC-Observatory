@@ -42,7 +42,7 @@ def sync() -> bool:
     page_file = ROOT / "web/page.html"
     page = page_file.read_text(encoding="utf-8")
     page_new, links = re.subn(
-        r'href="https://github\\.com/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+">GitHub</a>',
+        r'href="https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+">GitHub</a>',
         lambda _: 'href="https://github.com/' + location + '">GitHub</a>',
         page, count=1)
     if links != 1:
