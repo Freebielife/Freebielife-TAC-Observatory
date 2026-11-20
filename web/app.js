@@ -49,7 +49,7 @@ const texts = {
     "burn": "Сжигание",
     "holders": "Держатели",
     "sellers": "Продавцы",
-    "services": "⚙️ Сервисы",
+    "services": "⚙️ Сервисы и контракты",
     "more": "Показать ещё",
     "less": "Свернуть",
     "copy": "Копировать адрес",
@@ -159,7 +159,7 @@ const texts = {
     "burn": "Burn",
     "holders": "Holders",
     "sellers": "Sellers",
-    "services": "⚙️ Services",
+    "services": "⚙️ Services & contracts",
     "more": "Show more",
     "less": "Collapse",
     "copy": "Copy address",
@@ -354,11 +354,12 @@ function appendDomainBadge(badges,names,type,checked,linked){
     badges.append(rest);
   }
 }
+function readableRole(value){return value==="unclassified_contract"?(lang==="ru"?"Смарт-контракт · назначение неизвестно":"Smart contract · purpose unverified"):value;}
 function walletIdentity(raw,name,kind,{activity=false, holder=false, verifiedDomain, ownsFragment}={}){
   const wrapper=el("span",undefined,"walletIdentity");
   const identity=snapshot.identity?.byWallet?.[raw];
   const domain=linkedDomain(raw);
-  const address=addr(raw,(holder&&identity?.role)||domain||name);
+  const address=addr(raw,(holder&&readableRole(identity?.role))||domain||name);
   address.className="walletAddress "+(kind||"neutral");
   if(!activity&&holder&&kind){
     wrapper.append(el("span",wl(kind==="buy"?"activeBuy":"activeSell"),"walletRole "+kind));
@@ -368,7 +369,7 @@ function walletIdentity(raw,name,kind,{activity=false, holder=false, verifiedDom
   if(holder&&typeof identity?.role==="string"&&identity.role.trim()){
     wrapper.classList.add("serviceWallet");
     const service=el("span","⚙️","serviceGear");
-    service.title=(lang==="ru"?"Сервисный кошелёк · ":"Service wallet · ")+identity.role;
+    service.title=(lang==="ru"?"Сервисный кошелёк · ":"Service wallet · ")+readableRole(identity.role);
     service.setAttribute("aria-label",service.title);
     wrapper.append(service);
   }
@@ -909,7 +910,7 @@ function markFromLink(anchor){
  if(host.includes("jvault"))return"jvault";
  if(host.includes("getgems"))return"getgems";
  if(host.includes("fragment.com"))return"fragment";
- if(host.includes("project"))return"project";
+ if(host==="tac.build")return"project";
  return null;
 }
 function decorateBrandLinks(){
@@ -981,7 +982,7 @@ function decorateBrandLinks(){
      const match=label.match(/^(TAC)\s*\/\s*(.+)$/i);
      if(match){
        const quote=match[2].replace(/\s*\(TON\)\s*$/i,"").trim().toLowerCase();
-       const tokenKind=brandLabels[quote]!==undefined?quote:(quote==="ton"?"ton":null);
+       const quoteMaster=rawLookupAddress(card.dataset.quoteAddress);const native=rawLookupAddress("EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c");const tether=rawLookupAddress("EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs");const tokenKind=quoteMaster===native?"ton":quoteMaster===tether?"usdt":null;
        name.replaceChildren(brandMarkNode("project"),document.createTextNode(" TAC / "));
        if(tokenKind)name.append(brandMarkNode(tokenKind),document.createTextNode(" "+match[2]));
        else name.append(document.createTextNode(match[2]));
@@ -999,7 +1000,7 @@ function renderPools(){
   };
   const english={pool:"Pool", analytics:"Analytics", contract:"Contract", liquidity:"Liquidity", checked:"Checked via GeckoTerminal"};
   const words=lang==="ru"?labels:english;
-  $("poolChecked").textContent=section?.asOf?words.checked+" · "+stamp(section.asOf):"";
+  $("poolChecked").textContent="";
   const indexed=new Map((section?.rows||[]).map(pool=>[rawLookupAddress(pool.address),pool]));
   for(const card of document.querySelectorAll("#pools .knownPools .poolCard")){
     card.querySelector(".poolLiquidity")?.remove();
@@ -1018,7 +1019,7 @@ function renderPools(){
   for(const pool of indexed.values()){
     const address=rawLookupAddress(pool.address);
     if(!address)continue;
-    const card=el("article",undefined,"poolCard");
+    const card=el("article",undefined,"poolCard");card.dataset.quoteAddress=pool.token;
     card.append(el("h3","TAC / "+pool.symbol),el("p",pool.dex));
     const actions=el("div",undefined,"poolActions");
     const dex=/dedust/i.test(pool.dex)?"dedust":/ston/i.test(pool.dex)?"ston":null;
