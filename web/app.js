@@ -910,7 +910,7 @@ function markFromLink(anchor){
  if(host.includes("jvault"))return"jvault";
  if(host.includes("getgems"))return"getgems";
  if(host.includes("fragment.com"))return"fragment";
- if(host==="tac.build")return"project";
+ if(host==="tac.build"||host==="staking.tac.build")return"project";
  return null;
 }
 function decorateBrandLinks(){
@@ -943,7 +943,7 @@ function decorateBrandLinks(){
  const selector=".introLinks a,.resourceList a,#pools .poolActions a,#pools .poolSources a,.supplyGrid a";
  for(const anchor of document.querySelectorAll(selector)){
    if(anchor.querySelector(".brandGlyph"))continue;
-   const brand=markFromLink(anchor);
+   const brand=anchor.dataset.brand||markFromLink(anchor);
    if(!brand)continue;
    anchor.classList.add("brandedLink");
    anchor.prepend(brandMarkNode(brand));
