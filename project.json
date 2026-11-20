@@ -23,5 +23,6 @@
     "x": "https://x.com/TacBuild"
   },
   "services": {},
-  "badges": []
+  "badges": [],
+  "logo_file": "web/project-logo.webp"
 }
