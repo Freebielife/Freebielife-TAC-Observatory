@@ -15,6 +15,8 @@ import assets
 import pools
 import trades
 import observatory
+import badges
+import domains
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data/snapshot.json"
@@ -67,6 +69,11 @@ def refresh() -> bool:
     # Gradually verify account types; 18 per run avoids exhausting free API quota.
     # Unchecked owners stay unidentified and are never classified from balances.
     stage("identity", lambda _: observatory.identity(snapshot, now, budget=18, pace=0.2))
+    # Badge rules are intentionally empty for TAC until verified proofs are configured.
+    # Publishing an empty, valid section is distinct from a failed badge source.
+    stage("badges", lambda old: {**badges.refresh(old, now), "asOf": now}, interval=6 * 3600)
+    # Four-digit DNS ownership is independently verified, not inferred from wallet labels.
+    stage("domains", lambda old: domains.enrich(snapshot, now), interval=3600)
     if updated_any:
         snapshot["updated"] = int(time.time())
     snapshot["errors"] = sorted(errors)
