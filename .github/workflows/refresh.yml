@@ -49,7 +49,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- project.json web/snapshot-loader.js
+          git add -- project.json web/snapshot-loader.js web/page.html
           if ! git diff --cached --quiet; then git commit -m 'Sync TAC repository snapshot URLs'; fi
           python3 scripts/publish_snapshot.py
           git push origin HEAD:main
