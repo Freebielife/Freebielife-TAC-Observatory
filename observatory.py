@@ -1,5 +1,6 @@
 """Zero-address burns and identified TON accounts. No staking assumptions."""
 import base64
+import service_registry
 import time
 from urllib.parse import urlencode
 from assets import DOMAIN, MASTER, MASTER_RAW, fetch, raw_address, resolved_domain, token_amount
@@ -13,9 +14,12 @@ ROLES = {"dedust_vault":"DeDust Vault","stonfi_router_v2":"STON.fi Router V2",
 RECOVERABLE = (OSError, ValueError, KeyError, RuntimeError)
 
 KNOWN_SERVICES = {}
-def role(wallet, account):
+def role(wallet, account, registry=None):
     if wallet in KNOWN_SERVICES:
         return KNOWN_SERVICES[wallet]
+    custody = service_registry.lookup(wallet, registry)
+    if custody:
+        return custody
     # The network's recognized interfaces are evidence, a large token balance is not.
     known = next((ROLES[i] for i in account.get("interfaces", []) if i in ROLES), None)
     if known:
@@ -118,7 +122,7 @@ def identity(snapshot, now, budget=32, pace=1.05):
         try:
             account = fetch(f"/accounts/{wallet}", attempts=2)
             time.sleep(pace)
-            label = role(wallet, account)
+            label = role(wallet, account, snapshot.get("serviceRegistry"))
             names = fetch(f"/accounts/{wallet}/dns/backresolve", attempts=2)["domains"] if account["is_wallet"] else []
             domain = None
             linked_digits = []

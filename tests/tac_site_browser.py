@@ -47,6 +47,14 @@ def main():
                 assert action.get_attribute("href", timeout=1000).startswith("https://")
             widths = page.evaluate("() => [document.documentElement.scrollWidth, document.body.scrollWidth, innerWidth]")
             assert max(widths[:2]) <= widths[-1] + 2, (width, widths)
+            # Named custodians are separated from ordinary holder ranks.
+            page.locator("#views button").nth(2).click()
+            services=page.locator("#rankList").inner_text() if page.locator("#rankList").count() else page.locator("#wallets").inner_text()
+            for name in ("MEXC 3", "Bitget12", "Gate.io", "lbank.info", "Bitrue"):
+                assert name in services, (width, name)
+            assert page.locator(".serviceWallet a[href='https://github.com/tonkeeper/ton-assets/blob/main/accounts.json']").count() >= 5
+            dims=page.evaluate("() => [document.documentElement.scrollWidth, document.body.scrollWidth, innerWidth]")
+            assert max(dims[:2]) <= dims[-1]+2, (width, dims)
             page.locator("#en").click()
             assert page.evaluate("document.documentElement.lang") == "en"
             assert "Официальная страница стейкинга" not in page.locator("#supply").inner_text()
