@@ -56,6 +56,9 @@ def main():
             for name in ("MEXC 3", "Bitget12", "Gate.io", "lbank.info", "Bitrue"):
                 assert name in services, (width, name)
             assert page.locator(".serviceWallet a[href='https://github.com/tonkeeper/ton-assets/blob/main/accounts.json']").count() >= 5
+            for label in ("Bitget", "Wallet in Telegram", "KuCoin", "Bybit", "TAC Project Multisig", "Kraken"):
+                assert label in services, (width,label)
+            assert page.locator(".serviceWallet a[href^='https://gram.org/address/']").count() == 7
             dims=page.evaluate("() => [document.documentElement.scrollWidth, document.body.scrollWidth, innerWidth]")
             assert max(dims[:2]) <= dims[-1]+2, (width, dims)
             page.locator("#en").click()

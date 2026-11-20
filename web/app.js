@@ -370,8 +370,10 @@ function walletIdentity(raw,name,kind,{activity=false, holder=false, verifiedDom
     wrapper.classList.add("serviceWallet");
     const service=el("span","⚙️","serviceGear");
     service.title=(lang==="ru"?"Сервисный кошелёк · ":"Service wallet · ")+readableRole(identity.role);
-    if(identity.roleSource==="https://github.com/tonkeeper/ton-assets/blob/main/accounts.json"){
-      service.title+=(lang==="ru"?" · Метка Tonkeeper; открыть источник":" · Tonkeeper label; open source");
+    const gramSource=typeof identity.roleSource==="string" && /^https:\/\/gram\.org\/address\/[EU]Q[A-Za-z0-9_-]{46}$/.test(identity.roleSource);
+    if(gramSource||identity.roleSource==="https://github.com/tonkeeper/ton-assets/blob/main/accounts.json"){
+      const attribution=gramSource?"gram.org":"Tonkeeper";
+      service.title+=(lang==="ru"?" · Метка "+attribution+"; открыть источник":" · "+attribution+" label; open source");
       const proof=el("a");
       proof.href=identity.roleSource;proof.target="_blank";proof.rel="noopener noreferrer";
       proof.setAttribute("aria-label",service.title);

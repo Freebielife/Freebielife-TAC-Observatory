@@ -23,7 +23,15 @@
     "x": "https://x.com/TacBuild",
     "staking": "https://staking.tac.build/"
   },
-  "services": {},
+  "services": {
+    "UQCe6OZlNFHXWBai5V3CzYsdO68yZR2GMdMYWO6NJ1wYi5PA": "Bitget",
+    "UQCWULrv4afVSJNRbaVO6LcJoRisdnFaujnBQptKSXBH0TMO": "Wallet in Telegram",
+    "UQA7hl8xdtMpwYKAuzZHei7OSnJpVaznO7JwFLVYjY4At45g": "KuCoin",
+    "UQD5OKu0Tetz-lajm4lXlgF9WzUPnqnV231SZDKW3WYO2-1d": "Bybit",
+    "UQB_hJi_mg8AxypE6d3xfM6jWbRb3R_r1CpVSdMJyWaWzCP6": "TAC Project Multisig",
+    "UQDyoucGvxKV-mOI4wqZxDHOKUrvACcnlG0BOoXfwVVDF8MU": "KuCoin",
+    "UQDIsFlvCQskFf5V7y4HhfHFdpkr_eQ2rqx1787Dqx8PrG9-": "Kraken"
+  },
   "badges": [],
   "logo_file": "web/project-logo.webp"
 }
