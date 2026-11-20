@@ -1,0 +1,77 @@
+name: Bootstrap TAC Observatory
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap.yml'
+      - 'project.json'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: tac-bootstrap
+  cancel-in-progress: false
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate independent destination
+        run: |
+          test -f project.json
+          test ! -f assets.py || { echo 'Independent TAC code already installed; not overwriting'; exit 1; }
+      - name: Clone audited TAC generator at pinned commit
+        run: |
+          git clone --depth 1 --branch feature/tac-observatory-pilot-20261120 https://github.com/Freebielife/Ludoman.git "$RUNNER_TEMP/tac-reference"
+          test "$(git -C "$RUNNER_TEMP/tac-reference" rev-parse HEAD)" = 'e72c63e7ae7cbdd208272aa4327f525d066567a1'
+      - name: Generate independently configured TAC files
+        run: |
+          pip install --disable-pip-version-check Pillow
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          target = json.loads(Path('project.json').read_text())
+          source = Path(os.environ['RUNNER_TEMP'])/'tac-reference/examples/tac-pilot/project.json'
+          configured = json.loads(source.read_text())
+          for key in ('master','decimals','primary_pool','pools','links','slug','symbol','name','quote','services','badges'):
+              configured[key] = target[key]
+          configured['github'] = {'owner':os.environ['GITHUB_REPOSITORY'].split('/')[0], 'repo':os.environ['GITHUB_REPOSITORY'].split('/')[1]}
+          source.write_text(json.dumps(configured,ensure_ascii=False,indent=2))
+          PY
+          (cd "$RUNNER_TEMP/tac-reference" && python -m scripts.build_tac_pilot)
+      - name: Obtain verified TAC blockchain data in stages
+        id: stage
+        continue-on-error: true
+        run: (cd "$RUNNER_TEMP/tac-reference" && timeout --signal=TERM 160 python -m scripts.tac_seed_snapshot)
+      - name: Transfer reusable independent source to this repo
+        run: |
+          rsync -a --exclude='__pycache__/' --exclude='*.pyc' --exclude='screenshots/' "$RUNNER_TEMP/tac-reference/build/tac-pilot/" ./
+          rm -f .github/workflows/update.yml
+          python scripts/sync_repository.py
+          python build.py
+          python verify.py
+          node --check web/app.js
+          node --test tests/*.test.cjs
+      - name: Explain verified coverage
+        run: |
+          python - <<'PY'
+          import json
+          s=json.load(open('data/snapshot.json'))
+          print('Token:',s['token'])
+          print('Verified sections:',[k for k in ('holders','trades','rates','pools') if k in s])
+          print('Incomplete sections:',s.get('errors',[]))
+          print('Confirmed swaps:',len(s.get('trades',{}).get('rows',[])))
+          PY
+      - name: Commit standalone TAC Observatory
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet || git commit -m 'Install standalone TAC Observatory from audited generator'
+          git push origin HEAD:main
