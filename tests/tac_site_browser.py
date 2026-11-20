@@ -45,6 +45,9 @@ def main():
             assert page.locator(".resourceList a[href^='https://']").count() >= 5
             for action in page.locator("#pools .knownPools .poolActions a").all():
                 assert action.get_attribute("href", timeout=1000).startswith("https://")
+            page.locator("#periods button").nth(5).click()
+            if page.evaluate("marketCapSeries(snapshot,366*86400).partial"):
+                assert "История с" in page.locator("#capPeriod").inner_text()
             widths = page.evaluate("() => [document.documentElement.scrollWidth, document.body.scrollWidth, innerWidth]")
             assert max(widths[:2]) <= widths[-1] + 2, (width, widths)
             # Named custodians are separated from ordinary holder ranks.

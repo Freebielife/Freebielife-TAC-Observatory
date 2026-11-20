@@ -15,6 +15,7 @@ import assets
 import service_registry
 import pools
 import trades
+import trade_history
 import observatory
 import badges
 import domains
@@ -71,6 +72,12 @@ def refresh() -> bool:
     snapshot["errors"] = sorted(errors)
     save(snapshot)
     stage("trades", lambda old: trades.collect(old, now - 366 * 86400, now, max_pages=45))
+    if trade_history.refresh(snapshot, now, page_budget=8, save=save):
+        errors.add("tradeHistory")
+    else:
+        errors.discard("tradeHistory")
+    snapshot["errors"] = sorted(errors)
+    save(snapshot)
     # Verify accepted burn notifications on the TAC master, never sender requests alone.
     # First scan covers seven days; subsequent scans overlap the last hour for reindexing.
     def collect_burns(old):
