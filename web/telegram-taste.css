@@ -740,3 +740,15 @@ html[lang="ru"] .customBadgeDescription [lang="en"] {display:none!important}
 @media(prefers-reduced-motion:reduce) {
  .projectBadge.customBadge img {animation:none!important}
 }
+
+/* Token-only artwork stays independent of the shared TONecoFlags atlas. */
+.brandGlyph.brand-project{background:var(--project-art) center/contain no-repeat!important;
+  border-color:transparent!important;box-shadow:none!important;
+  color:transparent!important;font-size:0!important;padding:0!important}
+.supplyExternal{display:flex;flex-wrap:wrap;margin-top:14px;gap:9px}
+.supplyExternal a{display:inline-flex;align-items:center;gap:8px;
+  text-decoration:none;color:#eff8ff;border:1px solid #567296;
+  background:#132447;border-radius:10px;padding:9px 12px;min-height:42px}
+.supplyExternal a:hover{border-color:#81bdff}
+html[lang="en"] .supplyExternal [lang="ru"],
+html[lang="ru"] .supplyExternal [lang="en"]{display:none!important}
