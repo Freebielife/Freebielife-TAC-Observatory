@@ -56,7 +56,7 @@ def to_zero(row):
 
 
 def zero_burns(previous, now):
-    start = max(1, previous.get("asOf", 1) - 3600)
+    start = max(1, previous.get("asOf", now - 7 * 86400) - 3600)
     answers = {r["tx"]: r for r in previous.get("rows", []) if r["time"] < start}
     old = {r["tx"]: r for r in previous.get("rows", [])}
     for offset in range(0, 10000, 100):
