@@ -1,5 +1,19 @@
 # TAC Observatory
 
+## О проекте / токене
+
+TAC — блокчейн-инфраструктура для доступа к EVM-приложениям из экосистемы TON и Telegram. В документации проекта нативный TAC описан как токен оплаты комиссий и стейкинга сети TAC. Эта обсерватория отслеживает указанный ниже jetton TAC в TON; её показатели относятся к этому контракту и его TON-пулам.
+
+Контракт в TON: `EQBE_gBrU3mPI9hHjlJoR_kYyrhQgyCFPhccIqNN_ocNn-PBCb`.
+
+Описание составлено по первичным источникам проекта и метаданным контракта. Проверено: **2026-11-22**.
+
+Источники:
+
+- <https://www.tac.build/>
+- <https://www.tac.build/blog/introducing-tac-token-utility-and-tokenomics-of-the-tac-protocol-token>
+- <https://tonapi.io/v2/jettons/EQBE_gBrU3mPI9hHjlJoR_kYyrhQgyCFPhccIqNN_ocNn-PBCb>
+
 Независимая экспериментальная обсерватория токена TAC в TON на основе визуального стандарта Ludoman. **Не является официальным сайтом TAC.**
 
 ## Открыть и проверить
